@@ -77,7 +77,7 @@ public class Server extends JFrame{
 		repaint();
 	}
 
-	protected void newMessage(Message m) {
+	protected synchronized void newMessage(Message m) {
 		Message lastMsg = new Message("", "", "");
 		if(wiadomosci.size()>0)
 			lastMsg = wiadomosci.get(wiadomosci.size()-1);
@@ -97,4 +97,10 @@ public class Server extends JFrame{
 
 /*TODO
  * lista aktywnych uzytkowniku(user nickname) jlist.repaint() jako refresh
+ * 
+ * lista watkow(watki to uzytkownicy)
+ * 
+ * przechodzenie po liscie i aktualizacja chatu danego uzytkownika + sprawdzanie wersji
+ * 
+ * sprawdanie polega na porownaniu wersji i jezeli klient ma nieaktualna to serwer wysyla prefix '/clean ' a potem nowe wiadomosci
  */

@@ -274,17 +274,12 @@ public class Client extends JFrame implements KeyListener {
  * TODO PO KOLEI: wybranie nazwy, polaczenie sie z serwerem, wiadomosc
  * powitalna, okno
  *
+ *
+ *odbieranie wiadomosci od serwera
+ *
+ *utrzymywanie wersji listy
+ *
+ * reakcja na prefix '/clean ' to wyczyszczenie chat i wpisanie nowych wiadomosci
+ *
+ *gdy uzytkownik polaczy sie do czatu powinien dostac pelna liste wiadomosci
  */
-
-class AppendingObjectOutputStream extends ObjectOutputStream {
-
-	  public AppendingObjectOutputStream(OutputStream out) throws IOException {
-	    super(out);
-	  }
-
-	  @Override
-	  protected void writeStreamHeader() throws IOException {
-	    reset();
-	  }
-
-	}
