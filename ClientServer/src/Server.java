@@ -57,7 +57,7 @@ public class Server extends JFrame{
             //gdy klient polaczy sie z serwerem.
 
     		System.out.println("\n\nServer: client nr. " + ++amountOfClients + " is connected on port ");
-            new EchoThread(socket, this).start();
+            new ClientThread(socket, this).start();
         }
 	}
 

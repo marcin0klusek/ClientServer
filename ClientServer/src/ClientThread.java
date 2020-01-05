@@ -1,11 +1,11 @@
 import java.io.*;
 import java.net.*;
 
-public class EchoThread extends Thread {
+public class ClientThread extends Thread {
     protected Socket socket;
     protected Server server;
     private String user = "";
-    public EchoThread(Socket clientSocket, Server s) {
+    public ClientThread(Socket clientSocket, Server s) {
         this.socket = clientSocket;
         server = s;
     }
