@@ -1,20 +1,12 @@
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.*;
 import java.net.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-
-import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -44,13 +36,6 @@ public class Server extends JFrame{
 		setGui();
 		
 		startServer();
-//		newMessage(new Message("17:00", "Klusek", "Cześć!"));
-//		newMessage(new Message("17:01", "Ewa", "Czego"));
-//		newMessage(new Message("17:02", "Klusek", "a nic specjlanego"));
-//		newMessage(new Message("17:02", "Klusek", "moze sie poznamy?"));
-//		newMessage(new Message("17:03", "Ewa", "po co?"));
-//		newMessage(new Message("17:04", "Klusek", "zeby sie poznac"));
-		
 	}
 
 	private void startServer() {
