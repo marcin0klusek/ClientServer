@@ -121,14 +121,3 @@ public class Server extends JFrame{
 		
 	}
 }
-
-
-/*TODO
- * lista aktywnych uzytkowniku(user nickname) jlist.repaint() jako refresh
- * 
- * lista watkow(watki to uzytkownicy)
- * 
- * przechodzenie po liscie i aktualizacja chatu danego uzytkownika + sprawdzanie wersji
- * 
- * sprawdanie polega na porownaniu wersji i jezeli klient ma nieaktualna to serwer wysyla prefix '/clean ' a potem nowe wiadomosci
- */

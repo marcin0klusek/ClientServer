@@ -50,17 +50,6 @@ public class Client extends JFrame implements KeyListener {
 		setFrame();
 		setGui();
 	}
-	
-	public Client(String name) {
-		user = name;
-		
-		connectToServer();
-
-		new Thread(() -> JOptionPane.showMessageDialog(null, "Witaj " + user + "!")).start();
-		setFrame();
-		setGui();
-	}
-
 	private void getUsername() {
 		int repeat = 0;
 		do {
@@ -277,14 +266,3 @@ public class Client extends JFrame implements KeyListener {
 		}
 	}
 }
-
-/*
- * TODO  *
- *odbieranie wiadomosci od serwera
- *
- *utrzymywanie wersji listy
- *
- * reakcja na prefix '/clean ' to wyczyszczenie chat i wpisanie nowych wiadomosci
- *
- *gdy uzytkownik polaczy sie do czatu powinien dostac pelna liste wiadomosci
- */
