@@ -22,4 +22,10 @@ public class Message implements Serializable{
 	public String getCzas() {
 		return czas;
 	}
+
+	public void setTresc(String tresc) {
+		this.tresc = tresc;
+	}
+	
+	
 }

@@ -5,6 +5,10 @@ public class ClientThread extends Thread {
     protected Socket socket;
     protected Server server;
     private String user = "";
+	private OutputStream outputStream = null;
+	private ObjectOutputStream objectOutputStream = null;
+    
+    
     public ClientThread(Socket clientSocket, Server s) {
         this.socket = clientSocket;
         server = s;
@@ -28,13 +32,13 @@ public class ClientThread extends Thread {
             try {
                 msg = (Message) objectInputStream.readObject();
                 if (msg == null) {
-                	System.out.println(user + " się rozłączył ");
+                	server.notification("Klient " + user +" się rozłączył.");
                     socket.close();
                     return;
                 } else {
                 	if(msg.getTresc().equals("///autor")) {
                 		user = msg.getAutor();
-                		System.out.println("Klient " + user + " dołączył do czatu!");
+                		server.notification("Klient " + user + " dołączył do czatu!");
                 	}else
                 		server.newMessage(msg);
                 }
@@ -42,11 +46,23 @@ public class ClientThread extends Thread {
                 e.printStackTrace();
                 return;
             } catch (SocketException se) {
-            	System.out.println(user +" się rozłączyć");
+            	server.notification("Server: Klient " + user +" się rozłączył.");
             	return;
             } catch (IOException e) {
 				e.printStackTrace();
 			}
         }
+    }
+    
+    protected void send(Message msg) {
+    	try {
+			if(outputStream == null)
+				outputStream = socket.getOutputStream();
+			if(objectOutputStream == null)
+				objectOutputStream = new ObjectOutputStream(outputStream);
+			objectOutputStream.writeObject(msg);
+		} catch (IOException e) {
+			System.out.println("Nie znaleziono klienta " + user);
+		}
     }
 }

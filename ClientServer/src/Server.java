@@ -20,6 +20,8 @@ public class Server extends JFrame{
 	private static double listVer = 1.0;
 	private JScrollPane jcpChat;
 	private JTextArea chat = new JTextArea(15,80);
+	private ArrayList<ClientThread> klienci = new ArrayList<ClientThread>();
+	
 	
 	public static void main(String[] args) {
 		new Server();
@@ -57,7 +59,8 @@ public class Server extends JFrame{
             //gdy klient polaczy sie z serwerem.
 
     		System.out.println("\n\nServer: client nr. " + ++amountOfClients + " is connected on port ");
-            new ClientThread(socket, this).start();
+    		ClientThread c = new ClientThread(socket, this);
+    		klienci.add(c); c.start();
         }
 	}
 
@@ -79,18 +82,43 @@ public class Server extends JFrame{
 
 	protected synchronized void newMessage(Message m) {
 		Message lastMsg = new Message("", "", "");
-		if(wiadomosci.size()>0)
-			lastMsg = wiadomosci.get(wiadomosci.size()-1);
-		wiadomosci.add(m); listVer += 0.01;
-		if(lastMsg.getAutor().equals(m.getAutor())) {
-			chat.append("\n" + m.getTresc());
-		}else {
-			chat.append("\n\n" + m.getCzas() + "    " + m.getAutor() + "\n" + m.getTresc());
-		}
+		String strMsg = "\n\n" + m.getCzas() + "    " + m.getAutor() + "\n" + m.getTresc();
+		if (wiadomosci.size() > 0)
+			lastMsg = wiadomosci.get(wiadomosci.size() - 1);
+		wiadomosci.add(m);
+		listVer += 0.01;
+		
+		if (lastMsg.getAutor().equals(m.getAutor()))
+			strMsg = "\n" + m.getTresc();
+		
 		System.out.println("Wersja listy: " + listVer);
+		chat.append(strMsg);
+		
+		sendToSockets(m);
 		
 		JScrollBar vertical = jcpChat.getVerticalScrollBar();
-		vertical.setValue( vertical.getMaximum() );
+		vertical.setValue(vertical.getMaximum());
+	}
+	
+	protected synchronized void notification(String napis) {
+		chat.append("\n\n" + napis);
+		
+		JScrollBar vertical = jcpChat.getVerticalScrollBar();
+		vertical.setValue(vertical.getMaximum());
+	}
+
+	private void sendToSockets(Message msg) {		
+		System.out.println("Wysłano wiadomość do klientów o " + msg.getCzas());
+		msg.setTresc("/txt " + msg.getTresc());
+		for(ClientThread c : klienci) {
+			try {
+				c.send(msg);
+			}catch(Exception e) {
+				System.out.println("Nie można było wysłać wiadomości do klienta.");
+			}
+		}
+		
+		
 	}
 }
 

@@ -10,6 +10,7 @@ import java.io.*;
 import java.net.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -33,6 +34,8 @@ public class Client extends JFrame implements KeyListener {
 	
 	private OutputStream outputStream = null;
 	private ObjectOutputStream objectOutputStream = null;
+	
+	private ArrayList<Message> wiadomosci = new ArrayList<Message>();
 	
 	public static void main(String[] args) {
 		new Client();
@@ -104,12 +107,75 @@ public class Client extends JFrame implements KeyListener {
 	}
 
 	private void runRead() {
+		InputStream inputStream = null;
+		ObjectInputStream objectInputStream = null;
+		Message message = null;
+
+		try {
+			inputStream = s.getInputStream();
+			objectInputStream = new ObjectInputStream(inputStream);
+			System.out.println("Słuchanie...");
+		} catch (IOException e) {
+			send.setEnabled(false);
+			msg.setEditable(false);
+
+			send.repaint();
+			msg.repaint();
+
+			JOptionPane.showMessageDialog(this,
+					"Serwer przestał odpowiadać, proszę zrestartować aplikację lub spróbować ponownie.");
+
+			reading.stop();
+		}
+
+		String[] preFixes = { "/txt ", "/ver ", "/cln " }; // lista dostepnych prefixow: txt-text | ver-version | cln-clean
+		int substringPrefix = preFixes[0].length(); // liczba znakow prefixa
+
 		while (true) {
 			try {
-				read();
+				message = (Message) objectInputStream.readObject();
+				if (message != null) { // jezeli wiadomosc nie jest pusta
+					System.out.println("Otrzymano wiadomość.");
+					int i;
+					for (i = 0; i < preFixes.length; i++) // sprawdzenie ktory to prefix
+						if (message.getTresc().startsWith(preFixes[i])) {
+							message.setTresc(message.getTresc().substring(substringPrefix)); // wyciecie prefixa komendy i zostawienie zawartosci
+							break;
+						} 
+					
+					switch (i) {
+					case 0: // txt
+						Message lastMsg = new Message("", "", "");
+						String strMsg = "\n\n" + message.getCzas() + "    " + message.getAutor() + "\n" + message.getTresc();
+						if (wiadomosci.size() > 0)
+							lastMsg = wiadomosci.get(wiadomosci.size() - 1);
+						wiadomosci.add(message);
+						
+						if (lastMsg.getAutor().equals(message.getAutor()))
+							strMsg = "\n" + message.getTresc();
+						
+						chat.append(strMsg);
+						break;
+					case 1: // ver
+						double newVer = Double.parseDouble(message.getTresc());
+						if (ver < newVer)
+								ver = newVer;
+						break;
+					case 2: // clean
+						chat.setText("");
+						wiadomosci = new ArrayList<Message>();
+						break;
+					}
+
+				}
 			} catch (Exception e) {
+				JOptionPane.showMessageDialog(null, "Wystąpił błąd odbierania wiadomości przez klienta.");
 				e.printStackTrace();
 			}
+
+
+			JScrollBar vertical = jcpChat.getVerticalScrollBar();
+			vertical.setValue(vertical.getMaximum());
 		}
 	}
 
@@ -196,64 +262,6 @@ public class Client extends JFrame implements KeyListener {
 		}
 	}
 
-	private void read() {
-		String[] preFixes = { "/txt ", "/ver " }; // lista dostepnyhc prefixow
-		int substringPrefix = preFixes[0].length(); // liczba znakow prefixa
-
-		InputStreamReader in;
-		try {
-			in = new InputStreamReader(s.getInputStream());
-			BufferedReader bf = new BufferedReader(in);
-			String str = null;
-			try {
-				str = bf.readLine(); // wczytanie wiadomosci
-			}catch (SocketException e) {
-				send.setEnabled(false);
-				msg.setEditable(false);
-
-				send.repaint();
-				msg.repaint();
-				
-				JOptionPane.showMessageDialog(this, "Serwer przestał odpowiadać, proszę zrestartować aplikację lub spróbować ponownie.");
-				
-
-				reading.stop();
-			}
-
-			if (str != null) { // jezeli wiadomosc nie jest pusta
-				int i;
-				for (i = 0; i < preFixes.length; i++) // sprawdzenie ktory to prefix
-					if (str.startsWith(preFixes[i])) {
-						str = str.substring(substringPrefix); // wyciecie prefixa komendy i zostawienie zawartosci
-						break;
-					}
-
-				switch (i) {
-				case 0: // txt
-					chat.append(str);
-					break;
-				case 1: // ver
-					double newVer = Double.parseDouble(str);
-					if (ver < newVer) {
-						System.out.println("Odebrano nowsza wersje rozmowy " + newVer + ". Obecnie posiadasz " + ver);
-						ver = newVer;
-					} else {
-						System.out.println(
-								"Odebrano starsza lub obecna wersje rozmowy " + newVer + ". Obecnie posiadasz " + ver);
-					}
-					break;
-				}
-				
-				JScrollBar vertical = jcpChat.getVerticalScrollBar();
-				vertical.setValue( vertical.getMaximum() );
-
-			}
-		} catch (IOException e) {
-			JOptionPane.showMessageDialog(null, "Wystąpił błąd odbierania wiadomości przez klienta.");
-			e.printStackTrace();
-		}
-	}
-
 	public void keyTyped(KeyEvent e) {
 	}
 
@@ -271,10 +279,7 @@ public class Client extends JFrame implements KeyListener {
 }
 
 /*
- * TODO PO KOLEI: wybranie nazwy, polaczenie sie z serwerem, wiadomosc
- * powitalna, okno
- *
- *
+ * TODO  *
  *odbieranie wiadomosci od serwera
  *
  *utrzymywanie wersji listy
